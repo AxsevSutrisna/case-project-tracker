@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Status {
+  Draft
+  In_Progress @map("In Progress")
+  Done
+}
+
+model Project {
+  id         Int                 @id @default(autoincrement())
+  name       String
+  status     Status              @default(Draft)
+  progress   Float               @default(0.0)
+  start_date DateTime            @map("start_date")
+  end_date   DateTime            @map("end_date")
+  created_at DateTime            @default(now()) @map("created_at")
+  updated_at DateTime            @updatedAt @map("updated_at")
+  tasks      Task[]
+  dependencies ProjectDependency[] @relation("ProjectDependencies")
+  dependents   ProjectDependency[] @relation("ProjectDependents")
+
+  @@map("projects")
+}
+
+model ProjectDependency {
+  id                    Int     @id @default(autoincrement())
+  project_id            Int     @map("project_id")
+  depends_on_project_id Int     @map("depends_on_project_id")
+  project               Project @relation("ProjectDependencies", fields: [project_id], references: [id], onDelete: Cascade)
+  depends_on_project    Project @relation("ProjectDependents", fields: [depends_on_project_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, depends_on_project_id])
+  @@map("project_dependencies")
+}
+
+model Task {
+  id         Int              @id @default(autoincrement())
+  project_id Int              @map("project_id")
+  parent_id  Int?             @map("parent_id")
+  title      String
+  status     Status           @default(Draft)
+  weight     Int              @default(1)
+  sort_order Int              @default(0) @map("sort_order")
+  created_at DateTime         @default(now()) @map("created_at")
+  updated_at DateTime         @updatedAt @map("updated_at")
+  project    Project          @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  parent     Task?            @relation("Subtasks", fields: [parent_id], references: [id], onDelete: SetNull)
+  subtasks   Task[]           @relation("Subtasks")
+  dependencies TaskDependency[] @relation("TaskDependencies")
+  dependents   TaskDependency[] @relation("TaskDependents")
+
+  @@map("tasks")
+}
+
+model TaskDependency {
+  id                 Int  @id @default(autoincrement())
+  task_id            Int  @map("task_id")
+  depends_on_task_id Int  @map("depends_on_task_id")
+  task               Task @relation("TaskDependencies", fields: [task_id], references: [id], onDelete: Cascade)
+  depends_on_task    Task @relation("TaskDependents", fields: [depends_on_task_id], references: [id], onDelete: Cascade)
+
+  @@unique([task_id, depends_on_task_id])
+  @@map("task_dependencies")
+}
