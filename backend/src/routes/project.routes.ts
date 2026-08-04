@@ -7,7 +7,6 @@ import { asyncHandler } from '../utils/asyncHandler';
 
 const router = Router();
 
-// Zod schemas for validation
 const createProjectSchema = z.object({
   name: z.string().min(1, 'Nama proyek wajib diisi'),
   start_date: z.string().refine((val) => !isNaN(Date.parse(val)), 'Tanggal mulai tidak valid').transform((val) => new Date(val)),
@@ -24,7 +23,6 @@ const projectDependencySchema = z.object({
   depends_on_project_id: z.number().int('ID proyek dependensi harus integer'),
 });
 
-// GET /api/projects
 router.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -33,7 +31,6 @@ router.get(
   })
 );
 
-// POST /api/projects
 router.post(
   '/',
   asyncHandler(async (req, res) => {
@@ -43,7 +40,6 @@ router.post(
   })
 );
 
-// GET /api/projects/:id
 router.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -57,7 +53,6 @@ router.get(
   })
 );
 
-// PUT /api/projects/:id
 router.put(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -68,7 +63,6 @@ router.put(
   })
 );
 
-// DELETE /api/projects/:id
 router.delete(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -78,7 +72,6 @@ router.delete(
   })
 );
 
-// GET /api/projects/:id/tasks
 router.get(
   '/:id/tasks',
   asyncHandler(async (req, res) => {
@@ -88,7 +81,6 @@ router.get(
   })
 );
 
-// POST /api/projects/:id/dependencies
 router.post(
   '/:id/dependencies',
   asyncHandler(async (req, res) => {
@@ -99,7 +91,6 @@ router.post(
   })
 );
 
-// DELETE /api/projects/:id/dependencies/:dependsOnId
 router.delete(
   '/:id/dependencies/:dependsOnId',
   asyncHandler(async (req, res) => {

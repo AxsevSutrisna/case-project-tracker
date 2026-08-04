@@ -33,7 +33,6 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
   useEffect(() => {
     if (project) {
       setName(project.name);
-      // Format ISO string to YYYY-MM-DD
       setStartDate(project.start_date.split('T')[0]);
       setEndDate(project.end_date.split('T')[0]);
     } else {

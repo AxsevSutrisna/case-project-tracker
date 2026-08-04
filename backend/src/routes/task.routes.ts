@@ -7,7 +7,6 @@ import { Status } from '@prisma/client';
 
 const router = Router();
 
-// Zod schemas for validation
 const taskStatusSchema = z.enum(['Draft', 'In Progress', 'Done']);
 
 const createTaskSchema = z.object({
@@ -31,12 +30,10 @@ const taskDependencySchema = z.object({
   depends_on_task_id: z.number().int('ID tugas dependensi harus integer'),
 });
 
-// POST /api/tasks
 router.post(
   '/',
   asyncHandler(async (req, res) => {
     const body = createTaskSchema.parse(req.body);
-    // Map string "In Progress" to Prisma Status enum "In_Progress"
     const prismaStatus = body.status === 'In Progress' ? Status.In_Progress : (body.status as Status);
     
     const newTask = await TaskService.createTask({
@@ -47,7 +44,6 @@ router.post(
   })
 );
 
-// PUT /api/tasks/:id
 router.put(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -67,7 +63,6 @@ router.put(
   })
 );
 
-// DELETE /api/tasks/:id
 router.delete(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -77,7 +72,6 @@ router.delete(
   })
 );
 
-// POST /api/tasks/:id/dependencies
 router.post(
   '/:id/dependencies',
   asyncHandler(async (req, res) => {
@@ -88,7 +82,6 @@ router.post(
   })
 );
 
-// DELETE /api/tasks/:id/dependencies/:dependsOnId
 router.delete(
   '/:id/dependencies/:dependsOnId',
   asyncHandler(async (req, res) => {

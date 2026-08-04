@@ -20,24 +20,18 @@ import {
 } from '../hooks/useTasks';
 
 export default function ProjectTasksPage() {
-  // Query hooks
   const { data: projects = [], isLoading: isLoadingProjects } = useProjects();
   
-  // Selected focus states
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
-  // Retrieve tasks for selected project
   const { data: tasks = [], isLoading: isLoadingTasks } = useTasksTree(selectedProjectId);
-
-  // Auto-focus on first project when loaded if none selected
   React.useEffect(() => {
     if (projects.length > 0 && selectedProjectId === null) {
       setSelectedProjectId(projects[0].id);
     }
   }, [projects, selectedProjectId]);
 
-  // Mutations
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
@@ -49,21 +43,17 @@ export default function ProjectTasksPage() {
   const createTaskDepMutation = useCreateTaskDependency();
   const deleteTaskDepMutation = useDeleteTaskDependency();
 
-  // UI State
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form Panel states
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [panelType, setPanelType] = useState<'addProject' | 'editProject' | 'addTask' | 'editTask' | null>(null);
   
-  // Context states for new records creation
   const [preSelectedProjectId, setPreSelectedProjectId] = useState<number | null>(null);
   const [preSelectedParentId, setPreSelectedParentId] = useState<number | null>(null);
 
-  // Active entities
   const activeProject = useMemo(() => {
     return projects.find((p) => p.id === selectedProjectId) || null;
   }, [projects, selectedProjectId]);
@@ -72,17 +62,13 @@ export default function ProjectTasksPage() {
     return tasks.find((t) => t.id === selectedTaskId) || null;
   }, [tasks, selectedTaskId]);
 
-  // Helper to build task tree hierarchy
   const buildTaskTreeForProject = (taskList: TaskType[]): TaskType[] => {
     const map: { [key: number]: TaskType & { subtasks: TaskType[] } } = {};
     const roots: TaskType[] = [];
-
-    // Initialize node map
     taskList.forEach((t) => {
       map[t.id] = { ...t, subtasks: [] };
     });
 
-    // Populate parent-child links
     taskList.forEach((t) => {
       const node = map[t.id];
       if (t.parent_id !== null) {
@@ -100,7 +86,6 @@ export default function ProjectTasksPage() {
     return roots;
   };
 
-  // Check if a task or any of its subtasks matches the filters
   const filterTaskRecursive = (t: TaskType): boolean => {
     const matchesSearch = t.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
@@ -116,7 +101,6 @@ export default function ProjectTasksPage() {
     return false;
   };
 
-  // Rebuild the task tree and apply the Parent Visibility Rule filter
   const getFilteredTaskTree = (): TaskType[] => {
     const fullTree = buildTaskTreeForProject(tasks);
 
@@ -146,7 +130,6 @@ export default function ProjectTasksPage() {
       .filter((root): root is TaskType => root !== null);
   };
 
-  // Action Panel Triggers
   const handleOpenAddProject = () => {
     setApiError(null);
     setPanelType('addProject');
@@ -184,7 +167,6 @@ export default function ProjectTasksPage() {
     setApiError(null);
   };
 
-  // Submission Handlers
   const handleSaveProject = async (data: { name: string; start_date: string; end_date: string }) => {
     setApiError(null);
     setIsSubmitting(true);
@@ -231,7 +213,6 @@ export default function ProjectTasksPage() {
     setIsSubmitting(true);
     try {
       if (panelType === 'addTask') {
-        // Create task
         const newTask = await createTaskMutation.mutateAsync({
           project_id: data.project_id,
           parent_id: data.parent_id,
@@ -240,7 +221,6 @@ export default function ProjectTasksPage() {
           weight: data.weight,
         });
 
-        // Add task dependencies in parallel to prevent N+1 delay
         if (data.dependencyIds.length > 0) {
           await Promise.all(
             data.dependencyIds.map((depId) =>
@@ -249,7 +229,6 @@ export default function ProjectTasksPage() {
           );
         }
       } else if (panelType === 'editTask' && selectedTaskId && activeTask) {
-        // Update task fields
         await updateTaskMutation.mutateAsync({
           id: selectedTaskId,
           data: {
@@ -260,12 +239,10 @@ export default function ProjectTasksPage() {
           },
         });
 
-        // Calculate dependency changes
         const existingDeps = activeTask.dependencies ? activeTask.dependencies.map((d) => d.depends_on_task_id) : [];
         const addedDeps = data.dependencyIds.filter((id) => !existingDeps.includes(id));
         const removedDeps = existingDeps.filter((id) => !data.dependencyIds.includes(id));
 
-        // Sync dependencies in parallel
         await Promise.all([
           ...addedDeps.map((depId) =>
             createTaskDepMutation.mutateAsync({ taskId: selectedTaskId, dependsOnTaskId: depId })

@@ -1,4 +1,5 @@
 import { PrismaClient, Status } from '@prisma/client';
+import { StatusService } from '../src/services/status.service';
 
 const prisma = new PrismaClient();
 
@@ -10,7 +11,6 @@ async function main() {
   await prisma.project.deleteMany({});
 
   console.log('[seed] Creating projects...');
-  // 3 Projects with non-overlapping schedules
   const projectAlpha = await prisma.project.create({
     data: {
       name: 'Project Alpha (Design & Foundation)',
@@ -42,7 +42,6 @@ async function main() {
   });
 
   console.log('[seed] Creating project dependencies...');
-  // Project Beta depends on Project Alpha
   await prisma.projectDependency.create({
     data: {
       project_id: projectBeta.id,
@@ -50,7 +49,6 @@ async function main() {
     },
   });
 
-  // Project Gamma depends on Project Beta
   await prisma.projectDependency.create({
     data: {
       project_id: projectGamma.id,
@@ -59,41 +57,37 @@ async function main() {
   });
 
   console.log('[seed] Creating tasks for Project Alpha...');
-  // Task 1 (no parent)
   const task1 = await prisma.task.create({
     data: {
       project_id: projectAlpha.id,
       title: 'Task 1: Requirements Gathering',
-      status: Status.Draft,
+      status: Status.Done,
       weight: 2,
       sort_order: 1,
     },
   });
 
-  // Task 2 (parent of subtasks)
   const task2 = await prisma.task.create({
     data: {
       project_id: projectAlpha.id,
       title: 'Task 2: Database Setup',
-      status: Status.Draft,
+      status: Status.In_Progress,
       weight: 1,
       sort_order: 2,
     },
   });
 
-  // Subtask 2.1 (child of Task 2)
   const subtask2_1 = await prisma.task.create({
     data: {
       project_id: projectAlpha.id,
       parent_id: task2.id,
       title: 'Subtask 2.1: Schema Design',
-      status: Status.Draft,
+      status: Status.Done, 
       weight: 1,
       sort_order: 1,
     },
   });
 
-  // Subtask 2.2 (child of Task 2)
   const subtask2_2 = await prisma.task.create({
     data: {
       project_id: projectAlpha.id,
@@ -105,7 +99,6 @@ async function main() {
     },
   });
 
-  // Task 3 (depends on Task 2 / Database Setup)
   const task3 = await prisma.task.create({
     data: {
       project_id: projectAlpha.id,
@@ -117,7 +110,6 @@ async function main() {
   });
 
   console.log('[seed] Creating task dependencies...');
-  // Subtask 2.2 depends on Subtask 2.1 (Setup db container depends on schema design)
   await prisma.taskDependency.create({
     data: {
       task_id: subtask2_2.id,
@@ -125,13 +117,17 @@ async function main() {
     },
   });
 
-  // Task 3 depends on Task 2 (Backend logic depends on database setup being ready)
   await prisma.taskDependency.create({
     data: {
       task_id: task3.id,
       depends_on_task_id: task2.id,
     },
   });
+
+  console.log('[seed] Running recalculations for derived status and progress...');
+  await StatusService.recalculateProject(projectAlpha.id);
+  await StatusService.recalculateProject(projectBeta.id);
+  await StatusService.recalculateProject(projectGamma.id);
 
   console.log('[seed] Seeding completed successfully!');
 }

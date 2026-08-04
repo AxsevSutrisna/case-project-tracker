@@ -2,16 +2,11 @@ import prisma from '../db';
 import { BusinessRuleError } from '../errors';
 
 export class ProjectService {
-  /**
-   * Helper to check if a date range intersects with any existing projects
-   */
   static async validateProjectSchedule(startDate: Date, endDate: Date, excludeProjectId?: number) {
     if (startDate > endDate) {
       throw new BusinessRuleError('Tanggal mulai tidak boleh setelah tanggal selesai');
     }
-
-    // Find any project where:
-    // start_date_db <= endDate AND end_date_db >= startDate
+    
     const conflict = await prisma.project.findFirst({
       where: {
         id: excludeProjectId ? { not: excludeProjectId } : undefined,

@@ -42,7 +42,6 @@ export class TaskService {
       },
     });
 
-    // Recalculate project progress & status
     await StatusService.recalculateProject(task.project_id);
 
     return task;
@@ -71,8 +70,6 @@ export class TaskService {
       throw new BusinessRuleError('Task tidak ditemukan');
     }
 
-    // Task Status Guard:
-    // A task cannot be changed to Done if any dependency is not Done.
     if (data.status === Status.Done && task.status !== Status.Done) {
       const activeDeps = task.dependencies;
       const unfinishedDeps = activeDeps.some((dep) => dep.depends_on_task.status !== Status.Done);
@@ -110,11 +107,9 @@ export class TaskService {
       },
     });
 
-    // Handle status propagation if status changed
     if (data.status && data.status !== task.status) {
       await StatusService.propagateTaskStatusChange(id);
     } else {
-      // Recalculate progress/status if weight or parent changes
       await StatusService.recalculateProject(task.project_id);
     }
 
@@ -140,15 +135,11 @@ export class TaskService {
 
     const result = await prisma.task.delete({ where: { id } });
 
-    // Recalculate project progress & status after deletion
     await StatusService.recalculateProject(task.project_id);
 
     return result;
   }
 
-  /**
-   * Returns tasks organized in a hierarchical tree for a specific project
-   */
   static async listTasksTree(projectId: number) {
     const allTasks = await prisma.task.findMany({
       where: { project_id: projectId },

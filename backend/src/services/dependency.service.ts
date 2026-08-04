@@ -1,7 +1,6 @@
 import prisma from '../db';
 import { BusinessRuleError } from '../errors';
 
-// DFS Helper to check if a path exists between fromId and toId in task dependencies
 async function hasTaskPath(fromId: number, toId: number, visited = new Set<number>()): Promise<boolean> {
   if (fromId === toId) return true;
   if (visited.has(fromId)) return false;
@@ -21,7 +20,6 @@ async function hasTaskPath(fromId: number, toId: number, visited = new Set<numbe
   return false;
 }
 
-// DFS Helper to check if a path exists between fromId and toId in project dependencies
 async function hasProjectPath(fromId: number, toId: number, visited = new Set<number>()): Promise<boolean> {
   if (fromId === toId) return true;
   if (visited.has(fromId)) return false;
@@ -42,9 +40,6 @@ async function hasProjectPath(fromId: number, toId: number, visited = new Set<nu
 }
 
 export class DependencyService {
-  /**
-   * Adds a task dependency (taskId depends on dependsOnTaskId)
-   */
   static async addTaskDependency(taskId: number, dependsOnTaskId: number) {
     if (taskId === dependsOnTaskId) {
       throw new BusinessRuleError('Task tidak boleh bergantung pada dirinya sendiri');
@@ -63,13 +58,11 @@ export class DependencyService {
       throw new BusinessRuleError('Task dependency harus dalam project yang sama');
     }
 
-    // Check if adding this creates a cycle (meaning dependsOnTask already depends on task)
     const createsCycle = await hasTaskPath(dependsOnTaskId, taskId);
     if (createsCycle) {
       throw new BusinessRuleError('Circular dependency terdeteksi antar task');
     }
 
-    // Check if dependency already exists to avoid duplicates
     const existing = await prisma.taskDependency.findUnique({
       where: {
         task_id_depends_on_task_id: {
@@ -91,9 +84,6 @@ export class DependencyService {
     });
   }
 
-  /**
-   * Removes a task dependency
-   */
   static async removeTaskDependency(taskId: number, dependsOnTaskId: number) {
     return prisma.taskDependency.delete({
       where: {
@@ -105,9 +95,6 @@ export class DependencyService {
     });
   }
 
-  /**
-   * Adds a project dependency (projectId depends on dependsOnProjectId)
-   */
   static async addProjectDependency(projectId: number, dependsOnProjectId: number) {
     if (projectId === dependsOnProjectId) {
       throw new BusinessRuleError('Project tidak boleh bergantung pada dirinya sendiri');
@@ -122,13 +109,11 @@ export class DependencyService {
       throw new BusinessRuleError('Salah satu atau kedua project tidak ditemukan');
     }
 
-    // Check if adding this creates a cycle (meaning dependsOnProject already depends on project)
     const createsCycle = await hasProjectPath(dependsOnProjectId, projectId);
     if (createsCycle) {
       throw new BusinessRuleError('Circular dependency terdeteksi antar project');
     }
 
-    // Check if dependency already exists
     const existing = await prisma.projectDependency.findUnique({
       where: {
         project_id_depends_on_project_id: {
@@ -150,9 +135,6 @@ export class DependencyService {
     });
   }
 
-  /**
-   * Removes a project dependency
-   */
   static async removeProjectDependency(projectId: number, dependsOnProjectId: number) {
     return prisma.projectDependency.delete({
       where: {

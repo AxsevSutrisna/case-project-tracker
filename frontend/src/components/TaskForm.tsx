@@ -5,7 +5,7 @@ import { TaskType } from './TaskTreeNode';
 interface TaskFormProps {
   task?: TaskType | null;
   projects: { id: number; name: string }[];
-  tasks: TaskType[]; // All tasks of the selected project
+  tasks: TaskType[];
   onSave: (data: {
     title: string;
     project_id: number;
@@ -38,14 +38,12 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   const [dependencyIds, setDependencyIds] = useState<number[]>([]);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Sync state with selected project
   useEffect(() => {
     if (projects.length > 0 && !projectId) {
       setProjectId(projects[0].id);
     }
   }, [projects, projectId]);
 
-  // Sync state with task properties when task changes
   useEffect(() => {
     if (task) {
       setTitle(task.title);
@@ -92,11 +90,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     });
   };
 
-  // Filter tasks to prevent self-reference in parent select
   const parentOptions = tasks.filter((t) => t.id !== task?.id);
 
-  // Filter tasks to prevent self-reference in dependencies list,
-  // and also filter out child subtasks recursively to prevent illogical dependencies
   const isChildOf = (t: TaskType, targetId: number): boolean => {
     if (t.parent_id === targetId) return true;
     if (t.parent_id === null) return false;
@@ -105,8 +100,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   const dependencyOptions = tasks.filter((t) => {
-    if (t.id === task?.id) return false; // No self-dependency
-    if (task && isChildOf(t, task.id)) return false; // Subtasks cannot be dependencies
+    if (t.id === task?.id) return false;
+    if (task && isChildOf(t, task.id)) return false;
     return true;
   });
 

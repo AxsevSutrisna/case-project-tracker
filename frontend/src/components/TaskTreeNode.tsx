@@ -76,7 +76,7 @@ export const TaskTreeNode: React.FC<TaskTreeNodeProps> = ({
               )}
             </button>
           ) : (
-            <div className="w-6" /> // Placeholder spacing
+            <div className="w-6" />
           )}
 
           {/* Status Icon */}
