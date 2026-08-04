@@ -6,7 +6,7 @@ export interface ProjectType {
   name: string;
   start_date: string;
   end_date: string;
-  status: 'Draft' | 'In Progress' | 'Done';
+  status: 'Draft' | 'In_Progress' | 'Done';
   progress: number;
 }
 

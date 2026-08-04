@@ -21,7 +21,7 @@ export function useCreateTask() {
       project_id: number;
       parent_id: number | null;
       title: string;
-      status: 'Draft' | 'In Progress' | 'Done';
+      status: 'Draft' | 'In_Progress' | 'Done';
       weight: number;
     }) => {
       const res = await axios.post('/api/tasks', data);
@@ -45,7 +45,7 @@ export function useUpdateTask() {
       id: number;
       data: {
         title?: string;
-        status?: 'Draft' | 'In Progress' | 'Done';
+        status?: 'Draft' | 'In_Progress' | 'Done';
         weight?: number;
         parent_id?: number | null;
       };

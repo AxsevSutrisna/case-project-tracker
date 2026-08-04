@@ -37,7 +37,7 @@ export const SlidingPanel: React.FC<SlidingPanelProps> = ({
         >
           {/* Header */}
           <div className="px-6 py-5 border-b border-slate-850 flex items-center justify-between shrink-0">
-            <h2 className="text-lg font-bold text-slate-100">{title}</h2>
+            <h2 className="text-[20px] font-bold text-slate-100">{title}</h2>
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-100 transition-colors"

@@ -206,7 +206,7 @@ export default function ProjectTasksPage() {
     project_id: number;
     parent_id: number | null;
     weight: number;
-    status: 'Draft' | 'In Progress' | 'Done';
+    status: 'Draft' | 'In_Progress' | 'Done';
     dependencyIds: number[];
   }) => {
     setApiError(null);
@@ -280,13 +280,13 @@ export default function ProjectTasksPage() {
     <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
       
       {/* LEFT SIDEBAR PANEL: Tree navigation & filtering */}
-      <div className="w-80 border-r border-slate-900 flex flex-col bg-slate-950 shrink-0">
+      <div className="w-[360px] border-r border-slate-900 flex flex-col bg-slate-950 shrink-0">
         
         {/* Sidebar Header */}
         <div className="p-4 border-b border-slate-900 flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <Briefcase className="w-5 h-5 text-emerald-400" />
-            <h1 className="text-md font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
+            <h1 className="text-[20px] font-bold tracking-tight text-emerald-400">
               Project Tracker
             </h1>
           </div>
@@ -295,14 +295,14 @@ export default function ProjectTasksPage() {
           <div className="flex gap-2 mt-1">
             <button
               onClick={handleOpenAddProject}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs py-2 px-3 rounded-lg font-semibold transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-[12px] py-2 px-3 rounded-lg font-semibold transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Project
             </button>
             <button
               onClick={() => handleOpenAddTask()}
-              className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs py-2 px-3 rounded-lg font-bold transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-[12px] py-2 px-3 rounded-lg font-bold transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               Task
@@ -319,7 +319,7 @@ export default function ProjectTasksPage() {
               placeholder="Cari tugas..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900/50 border border-slate-900 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder-slate-500 transition-colors"
+              className="w-full bg-slate-900/50 border border-slate-900 rounded-lg pl-9 pr-3 py-1.5 text-[12px] text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder-slate-500 transition-colors"
             />
             <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-slate-500" />
           </div>
@@ -330,11 +330,11 @@ export default function ProjectTasksPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-slate-900/50 border border-slate-900 text-slate-300 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer"
+              className="w-full bg-slate-900/50 border border-slate-900 text-slate-300 rounded-lg px-2 py-1.5 text-[12px] focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer"
             >
               <option value="all">Semua Status Task</option>
               <option value="Draft">Draft</option>
-              <option value="In Progress">In Progress</option>
+              <option value="In_Progress">In Progress</option>
               <option value="Done">Done</option>
             </select>
           </div>
@@ -343,12 +343,12 @@ export default function ProjectTasksPage() {
         {/* Dynamic Project Tree Explorer */}
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5">
           {isLoadingProjects ? (
-            <div className="flex items-center justify-center py-12 text-slate-500 gap-2 text-xs">
+            <div className="flex items-center justify-center py-12 text-slate-500 gap-2 text-[12px]">
               <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
               <span>Memuat proyek...</span>
             </div>
           ) : projects.length === 0 ? (
-            <div className="text-center py-8 text-xs text-slate-500 italic">Belum ada proyek.</div>
+            <div className="text-center py-8 text-[12px] text-slate-500 italic">Belum ada proyek.</div>
           ) : (
             projects.map((p) => {
               const isSelected = selectedProjectId === p.id;
@@ -366,7 +366,7 @@ export default function ProjectTasksPage() {
                   <div className="flex items-center justify-between group">
                     <div className="flex items-center gap-2 min-w-0">
                       <Folder className={`w-4 h-4 shrink-0 ${isSelected ? 'text-emerald-400' : 'text-slate-500'}`} />
-                      <span className="text-xs font-bold text-slate-200 truncate cursor-pointer hover:text-slate-100">
+                      <span className="text-[12px] font-bold text-slate-200 truncate cursor-pointer hover:text-slate-100">
                         {p.name}
                       </span>
                     </div>
@@ -390,12 +390,12 @@ export default function ProjectTasksPage() {
                   {isSelected && (
                     <div className="mt-2 pl-1 flex flex-col gap-1 border-l border-slate-900">
                       {isLoadingTasks ? (
-                        <div className="flex items-center gap-2 py-2 pl-3 text-[10px] text-slate-500">
+                        <div className="flex items-center gap-2 py-2 pl-3 text-[12px] text-slate-500">
                           <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
                           <span>Memuat tugas...</span>
                         </div>
                       ) : filteredTree.length === 0 ? (
-                        <span className="text-[11px] text-slate-600 italic pl-3 py-1">Tidak ada tugas.</span>
+                        <span className="text-[12px] text-slate-600 italic pl-3 py-1">Tidak ada tugas.</span>
                       ) : (
                         filteredTree.map((task) => (
                           <TaskTreeNode
@@ -422,13 +422,13 @@ export default function ProjectTasksPage() {
         {/* Workspace Header */}
         <div className="px-6 py-5 border-b border-slate-900 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">Workspace</span>
-            <h2 className="text-lg font-bold text-slate-150">Detail Proyek aktif</h2>
+            <span className="text-[12px] text-slate-500 uppercase tracking-widest font-semibold">Workspace</span>
+            <h2 className="text-[20px] font-bold text-slate-150">Detail Proyek aktif</h2>
           </div>
           {activeProject && (
             <button
               onClick={() => handleOpenEditProject(activeProject.id)}
-              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-350 hover:text-slate-100 text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors"
+              className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-350 hover:text-slate-100 text-[12px] font-semibold py-1.5 px-3 rounded-lg transition-colors"
             >
               Edit Parameter Proyek
             </button>
@@ -443,24 +443,24 @@ export default function ProjectTasksPage() {
               {/* Project Card Stats Banner */}
               <div className="glass-card p-6 rounded-2xl flex flex-col gap-4">
                 <div className="flex justify-between items-start gap-4">
-                  <h3 className="text-xl font-extrabold tracking-tight text-slate-100">{activeProject.name}</h3>
-                  <span className={`text-xs px-2.5 py-1 rounded-md font-semibold tracking-wide border ${
+                  <h3 className="text-[20px] font-extrabold tracking-tight text-slate-100">{activeProject.name}</h3>
+                  <span className={`text-[12px] px-2.5 py-1 rounded-md font-semibold tracking-wide border ${
                     activeProject.status === 'Done'
                       ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      : activeProject.status === 'In Progress'
+                      : activeProject.status === 'In_Progress'
                       ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
                       : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
                   }`}>
-                    {activeProject.status}
+                    {activeProject.status === 'In_Progress' ? 'In Progress' : activeProject.status}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mt-2">
-                  <div className="flex items-center gap-3 text-sm text-slate-400">
+                  <div className="flex items-center gap-3 text-[16px] text-slate-400">
                     <Calendar className="w-4 h-4 text-slate-500" />
                     <span>Jadwal: {activeProject.start_date.split('T')[0]} s/d {activeProject.end_date.split('T')[0]}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-sm text-slate-400">
+                  <div className="flex items-center gap-3 text-[16px] text-slate-400">
                     <ClipboardList className="w-4 h-4 text-slate-500" />
                     <span>Total Tugas: {tasks.length}</span>
                   </div>
@@ -468,7 +468,7 @@ export default function ProjectTasksPage() {
 
                 {/* Progress bar */}
                 <div className="mt-4 pt-4 border-t border-slate-800/40">
-                  <div className="flex justify-between text-xs font-semibold text-slate-400 mb-1.5">
+                  <div className="flex justify-between text-[12px] font-semibold text-slate-400 mb-1.5">
                     <span>Progress Penyelesaian</span>
                     <span className="text-emerald-400">{activeProject.progress.toFixed(1)}%</span>
                   </div>
@@ -481,23 +481,14 @@ export default function ProjectTasksPage() {
                 </div>
               </div>
 
-              {/* Guide instructions */}
-              <div className="bg-slate-900/30 border border-slate-900 p-6 rounded-2xl flex flex-col gap-3">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Informasi Sistem Project Tracker</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Data yang tertera di sidebar dan halaman detail proyek ditarik secara realtime dari database lokal Anda melalui query API.
-                </p>
-                <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-                  Sistem dependensi, validasi jadwal bertabrakan, dan circular dependency prevention saat ini berjalan aktif. Setiap kali Anda melakukan penambahan atau modifikasi data, status dan progres proyek akan disinkronisasikan ulang secara otomatis.
-                </p>
-              </div>
+
 
             </div>
           ) : (
             <div className="text-center py-16">
               <Folder className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-slate-400">Belum ada Proyek</h3>
-              <p className="text-sm text-slate-500 mt-2">Silakan tambahkan proyek baru menggunakan tombol "+ Project" di sebelah kiri.</p>
+              <h3 className="text-[20px] font-bold text-slate-400">Belum ada Proyek</h3>
+              <p className="text-[16px] text-slate-500 mt-2">Silakan tambahkan proyek baru menggunakan tombol "+ Project" di sebelah kiri.</p>
             </div>
           )}
         </div>

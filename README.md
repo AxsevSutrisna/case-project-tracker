@@ -13,7 +13,6 @@ Aplikasi ini diimplementasikan dengan mematuhi aturan bisnis domain (*business r
 - **Framework**: Express.js
 - **ORM & Database**: Prisma Client & PostgreSQL (Local)
 - **Validation**: Zod (Request payload parsing)
-- **Testing**: Vitest (Unit & Integration tests)
 
 ### Frontend:
 - **Framework & Bundler**: React.js & Vite
@@ -38,8 +37,8 @@ Basis data PostgreSQL diatur dengan relasi kuat melalui Prisma ORM:
 Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi pada mesin lokal Anda:
 
 ### 1. Prasyarat (Prerequisites)
-Pastikan Anda telah menginstal:
-- **Node.js** (v18 ke atas direkomendasikan)
+Pastikan sistem Anda telah menginstal:
+- **Node.js** (v18 ke atas)
 - **PostgreSQL** lokal yang menyala pada port default `5432`
 
 ### 2. Kloning Proyek & Instal Dependensi Workspace
@@ -49,19 +48,20 @@ npm install
 ```
 
 ### 3. Konfigurasi Environment Variables (`.env`)
-Buat file `.env` di dalam sub-direktori **`backend/`** dengan isi sebagai berikut (sesuaikan password PostgreSQL lokal Anda):
+Buat file bernama `.env` di dalam sub-direktori **`backend/`** dengan isi sebagai berikut. Sesuaikan `username`, `password`, dan `port` database PostgreSQL lokal Anda:
 ```env
 PORT=5000
 DATABASE_URL="postgresql://postgres:admin@localhost:5432/project_tracker?schema=public"
 ```
-*(Catatan: Anda dapat menyalin templat dasar dari file `.env.example` di root).*
+*(Catatan: Anda dapat menyalin templat dasar dari file `backend/.env.example` sebagai referensi).*
 
-### 4. Setup Database: Migrasi & Seeding
+### 4. Setup Database: Migrasi & Seeding Data Contoh
 Jalankan perintah ini di root direktori untuk mengotomatiskan migrasi skema tabel ke PostgreSQL lokal Anda sekaligus mengisi data contoh awal (*seeded data*):
 ```bash
 # Menjalankan prisma migration & prisma seed di workspace backend
 npm run db:setup -w backend
 ```
+*Perintah ini akan membuat database `project_tracker`, menerapkan struktur tabel, dan memicu script `seed.ts` untuk mengisi data uji coba.*
 
 ### 5. Jalankan Server Pengembangan (Dev Servers)
 Gunakan perintah pintas di root direktori untuk menyalakan Express server (port `5000`) dan Vite server (port `5173`) secara simultan menggunakan `concurrently`:
@@ -72,45 +72,60 @@ Setelah aktif, silakan buka browser Anda di alamat: **[http://localhost:5173](ht
 
 ---
 
-## 🧪 Eksekusi Suite Pengujian (Testing)
+## 🕵️ Panduan Pengujian Fitur bagi Reviewer (Manual Testing Scenarios)
 
-Suite pengujian unit (*unit tests*) untuk domain logic dan uji integrasi REST API dapat dijalankan dengan perintah:
-```bash
-npm run test -w backend
-```
-*Vitest akan menjalankan 11/11 test cases secara berurutan (sequential) untuk memverifikasi aturan bisnis.*
+Setelah membuka aplikasi di **http://localhost:5173**, Anda dapat memverifikasi pemenuhan kriteria kelulusan aturan bisnis menggunakan skenario berikut:
+
+### Skenario 1: Deteksi Bentrokan Jadwal (Schedule Overlap Rule)
+*   **Tujuan**: Memastikan dua proyek tidak memiliki rentang tanggal yang saling beririsan.
+*   **Langkah**:
+    1. Klik tombol **"+ Project"** di kiri atas untuk menambah proyek baru.
+    2. Masukkan nama proyek bebas, lalu atur Tanggal Mulai dan Tanggal Selesai di antara tanggal `2026-08-05` s/d `2026-08-08` (bentrok dengan jadwal *Project Alpha* yang berjalan dari `2026-08-01` s/d `2026-08-10`).
+    3. Klik **"Simpan"**.
+*   **Hasil**: Sistem memblokir penyimpanan, dan memunculkan kotak alert merah di dalam form bertuliskan: **`"Jadwal proyek berbenturan dengan proyek "Project Alpha (Design & Foundation)" (2026-08-01 s/d 2026-08-10)"`**.
+
+### Skenario 2: Aturan Dependensi Tugas (Task Dependency Guard)
+*   **Tujuan**: Memastikan tugas tidak bisa diubah menjadi status `Done` jika dependensinya belum berstatus `Done`.
+*   **Langkah**:
+    1. Klik proyek **Project Alpha** di sidebar kiri.
+    2. Di dalam pohon tugas, klik tugas **"Task 3: Backend REST Services Implementation"** (Tugas ini diatur bergantung pada *Task 2: Database Setup*).
+    3. Ubah status *Task 3* dari `Draft` menjadi `Done` melalui menu select dropdown status di panel kanan.
+    4. Klik **"Simpan"**.
+*   **Hasil**: Sistem menolak penyimpanan dan menampilkan alert merah: **`"Gagal mengubah status task karena task dependency belum Done"`**.
+
+### Skenario 3: Penurunan Status Beruntun (Regression Cascade Propagation)
+*   **Tujuan**: Memverifikasi bahwa jika dependensi diturunkan statusnya dari `Done`, status tugas yang bergantung padanya ikut turun secara rekursif.
+*   **Langkah**:
+    1. Pastikan **"Task 2"** (dan subtask di bawahnya) serta **"Task 3"** saat ini berstatus `Done`.
+    2. Klik **"Subtask 2.1: Schema Design"** yang saat ini berstatus `Done`.
+    3. Ubah statusnya mundur menjadi `Draft` atau `In Progress`, lalu klik **"Simpan"**.
+*   **Hasil**: Status **"Subtask 2.2"** dan **"Task 3"** di sidebar tree list akan otomatis ikut mundur statusnya menjadi **`In Progress`** secara real-time di layar DOM tanpa perlu memuat ulang halaman.
+
+### Skenario 4: Dependensi Proyek (Project Dependency Guard)
+*   **Tujuan**: Memastikan proyek berstatus `Draft` jika proyek dependensinya belum selesai (`Done`).
+*   **Langkah**:
+    1. Klik proyek **Project Beta** di sidebar kiri. Perhatikan bahwa status proyek ini adalah **`Draft`** karena ia bergantung pada *Project Alpha* yang belum berstatus `Done`.
+    2. Di dalam panel kanan detail proyek, Anda tidak akan menemukan tombol untuk mempromosikan status proyek secara manual (karena status proyek bersifat dinamis/derived dari status penyelesaian task).
+    3. Selesaikan semua task di bawah **Project Alpha** hingga status proyek *Alpha* menjadi `Done`.
+*   **Hasil**: Status **Project Beta** akan otomatis dapat berubah menjadi `In Progress` saat tugas di bawahnya mulai dikerjakan karena dependensinya (*Project Alpha*) telah selesai (`Done`).
+
+### Skenario 5: Pencarian Hierarkis (Parent Visibility Rule)
+*   **Tujuan**: Memastikan struktur pohon tugas (parent) tetap terlihat saat pencarian teks mencocokkan subtask di bawahnya.
+*   **Langkah**:
+    1. Ketik kata kunci **`"Docker"`** di kolom input pencarian di panel kiri.
+*   **Hasil**:
+    - Subtask **"Subtask 2.2: Docker Container Mapping"** (yang cocok dengan kata "Docker") tetap ditampilkan.
+    - Node induk **"Task 2: Database Setup"** (yang namanya tidak mengandung kata "Docker") **tetap dipertahankan visibilitasnya** di atas subtask agar hierarki visual pohon tidak terputus.
+    - Tugas lain yang tidak cocok dan tidak berasosiasi dengan subtask (seperti *Task 1* dan *Task 3*) disembunyikan secara otomatis.
 
 ---
 
-## 🛡️ Aturan Bisnis yang Diimplementasikan (Domain Rules)
+## 🔍 Cara Memantau Basis Data Secara Visual (Prisma Studio)
 
-Aplikasi Project Tracker ini dibangun di atas aturan-aturan logika bisnis berikut:
-
-1. **Pencegahan Ketergantungan Melingkar (Circular Dependency Prevention)**:
-   - Sistem akan memblokir penambahan dependensi baru baik antar-tugas maupun antar-proyek jika memicu hubungan melingkar secara langsung (misal: A bergantung ke B, lalu B diatur bergantung ke A) atau tidak langsung (misal: A -> B -> C -> A) menggunakan penelusuran graf **DFS (Depth-First Search)**. Respon HTTP: `409 Conflict`.
-
-2. **Validasi Jadwal Bentrok (Schedule Overlap Prevention)**:
-   - Dua proyek tidak boleh memiliki rentang tanggal pengerjaan yang saling beririsan. Jika ada bentrokan saat pembuatan atau modifikasi proyek, sistem akan memblokir aksi tersebut dan mengembalikan detail proyek yang menghambat. Respon HTTP: `409 Conflict`.
-
-3. **Status Guard & Propagation**:
-   - **Task Status Guard**: Sebuah tugas tidak dapat diubah statusnya menjadi `Done` jika salah satu dari tugas dependensinya belum berstatus `Done`.
-   - **Task Status Regression**: Jika sebuah tugas diturunkan statusnya dari `Done` (menjadi `In Progress` atau `Draft`), seluruh tugas lain yang bergantung padanya akan ditarik mundur statusnya secara rekursif.
-   - **Project Status Guard**: Sebuah proyek otomatis dipaksa berstatus `Draft` jika proyek lain yang didependensikannya belum rampung (`Done`).
-   - **Progress & Derived Status**: Progres proyek (%) dihitung otomatis berdasarkan bobot tugas (`weight`) yang berstatus `Done`. Status proyek juga diturunkan secara otomatis (`Draft` jika semua draft, `Done` jika semua done, dan `In Progress` di antaranya).
-
-4. **Parent Visibility Rule (Filtering Tree)**:
-   - Penyaringan data tugas mendukung query teks dan filter status. Jika sebuah subtask (anak node) cocok dengan filter pencarian, seluruh node induknya (parent) di atasnya harus tetap tampil di UI tree view agar konteks hierarki visual tetap terjaga.
-
----
-
-## 📦 Kompilasi Production (Production Build)
-
-Untuk memvalidasi kebersihan kode TypeScript dan melakukan build aset statis sebelum deployment, jalankan:
-```bash
-# Mengompilasi kode server backend (TypeScript -> JavaScript)
-npm run build -w backend
-
-# Mem-bundle aplikasi React frontend menjadi file statis siap saji
-npm run build -w frontend
-```
-Kedua perintah di atas harus berhasil selesai tanpa adanya error ataupun peringatan kompilasi.
+Jika Anda ingin memeriksa status baris data di tabel PostgreSQL secara visual saat pengujian berlangsung:
+1. Buka terminal baru di direktori `backend/`.
+2. Jalankan perintah:
+   ```bash
+   npx prisma studio
+   ```
+3. Akses **[http://localhost:5555](http://localhost:5555)** di browser Anda untuk menjelajahi baris data di tabel `Project`, `Task`, `ProjectDependency`, dan `TaskDependency`.

@@ -7,7 +7,7 @@ import { Status } from '@prisma/client';
 
 const router = Router();
 
-const taskStatusSchema = z.enum(['Draft', 'In Progress', 'Done']);
+const taskStatusSchema = z.enum(['Draft', 'In_Progress', 'Done']);
 
 const createTaskSchema = z.object({
   project_id: z.number().int('ID proyek harus berupa integer'),
@@ -34,11 +34,10 @@ router.post(
   '/',
   asyncHandler(async (req, res) => {
     const body = createTaskSchema.parse(req.body);
-    const prismaStatus = body.status === 'In Progress' ? Status.In_Progress : (body.status as Status);
     
     const newTask = await TaskService.createTask({
       ...body,
-      status: prismaStatus,
+      status: body.status as Status,
     });
     res.status(201).json(newTask);
   })
@@ -49,15 +48,10 @@ router.put(
   asyncHandler(async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const body = updateTaskSchema.parse(req.body);
-    
-    let prismaStatus: Status | undefined;
-    if (body.status) {
-      prismaStatus = body.status === 'In Progress' ? Status.In_Progress : (body.status as Status);
-    }
 
     const updated = await TaskService.updateTask(id, {
       ...body,
-      status: prismaStatus,
+      status: body.status as Status,
     });
     res.json(updated);
   })
