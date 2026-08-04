@@ -1,12 +1,7 @@
 # Mini App: Project Tracker Monorepo
-
-Project Tracker adalah aplikasi manajemen proyek dan tugas (task manager) satu halaman (SPA) berbasis monorepo. Proyek ini memisahkan layer server backend (Express.js) dan client frontend (React + Vite) yang ditulis menggunakan **TypeScript** serta didukung oleh basis data relasional **PostgreSQL** (Prisma ORM).
-
-Aplikasi ini diimplementasikan dengan mematuhi aturan bisnis domain (*business rules domain*) yang ketat, pencegahan N+1 query, input validation, serta visual antarmuka bernuansa gelap (*dark theme*) yang modern.
-
 ---
 
-## 🛠️ Tech Stack & Architecture
+## Tech Stack & Architecture
 
 ### Backend:
 - **Runtime & Language**: Node.js & TypeScript
@@ -22,7 +17,7 @@ Aplikasi ini diimplementasikan dengan mematuhi aturan bisnis domain (*business r
 
 ---
 
-## 📐 Skema Relasi Database
+## Skema Relasi Database
 
 Basis data PostgreSQL diatur dengan relasi kuat melalui Prisma ORM:
 1. **`projects`**: Menyimpan identitas proyek, jadwal tanggal mulai-selesai, derived status, dan bobot penyelesaian.
@@ -32,7 +27,7 @@ Basis data PostgreSQL diatur dengan relasi kuat melalui Prisma ORM:
 
 ---
 
-## 🚀 Panduan Instalasi & Persiapan Lingkungan
+## Panduan Instalasi & Persiapan Lingkungan
 
 Ikuti langkah-langkah di bawah ini untuk menjalankan aplikasi pada mesin lokal Anda:
 
@@ -72,7 +67,7 @@ Setelah aktif, silakan buka browser Anda di alamat: **[http://localhost:5173](ht
 
 ---
 
-## 🕵️ Panduan Pengujian Fitur bagi Reviewer (Manual Testing Scenarios)
+## Panduan Pengujian Fitur bagi Reviewer (Manual Testing Scenarios)
 
 Setelah membuka aplikasi di **http://localhost:5173**, Anda dapat memverifikasi pemenuhan kriteria kelulusan aturan bisnis menggunakan skenario berikut:
 
@@ -120,7 +115,7 @@ Setelah membuka aplikasi di **http://localhost:5173**, Anda dapat memverifikasi 
 
 ---
 
-## 🔍 Cara Memantau Basis Data Secara Visual (Prisma Studio)
+## Cara Memantau Basis Data Secara Visual (Prisma Studio)
 
 Jika Anda ingin memeriksa status baris data di tabel PostgreSQL secara visual saat pengujian berlangsung:
 1. Buka terminal baru di direktori `backend/`.
