@@ -111,3 +111,15 @@ npm run dev
    npx prisma studio
    ```
 3. Akses alamat **[http://localhost:5555](http://localhost:5555)** di browser untuk menjelajahi tabel database secara interaktif (`Project`, `Task`, `ProjectDependency`, `TaskDependency`).
+
+---
+
+## Pengujian API dengan Postman
+
+Untuk mempermudah pengujian REST API, berkas ekspor Postman Collection telah disediakan di dalam direktori root:
+
+1. Buka aplikasi **Postman**.
+2. Klik tombol **Import** di area navigasi kiri atas.
+3. Pilih atau seret berkas **`project-tracker.postman_collection.json`** dari direktori root proyek ini.
+4. Koleksi bernama **`Project Tracker API Collection`** akan muncul dan siap digunakan untuk menguji fungsionalitas CRUD Proyek, Tugas, Dependensi, dan Health Check.
+5. Jalankan server lokal (`npm run dev`) lalu silakan tekan tombol **Send** untuk mengirim request uji coba.
