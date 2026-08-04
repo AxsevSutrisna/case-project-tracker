@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Plus, Search, Calendar, Folder, ClipboardList, Briefcase, Filter, Loader2 } from 'lucide-react';
+import { Plus, Search, Calendar, Folder, ClipboardList, Briefcase, Filter, Loader2, CheckCircle2, Play, Circle, Weight } from 'lucide-react';
 import { TaskTreeNode, TaskType } from '../components/TaskTreeNode';
 import { SlidingPanel } from '../components/SlidingPanel';
 import { ProjectForm } from '../components/ProjectForm';
@@ -61,6 +61,14 @@ export default function ProjectTasksPage() {
   const activeTask = useMemo(() => {
     return tasks.find((t) => t.id === selectedTaskId) || null;
   }, [tasks, selectedTaskId]);
+
+  const filteredFlatTasks = useMemo(() => {
+    return tasks.filter((t) => {
+      const matchesSearch = searchQuery.trim() === '' || t.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [tasks, searchQuery, statusFilter]);
 
   const buildTaskTreeForProject = (taskList: TaskType[]): TaskType[] => {
     const map: { [key: number]: TaskType & { subtasks: TaskType[] } } = {};
@@ -481,7 +489,81 @@ export default function ProjectTasksPage() {
                 </div>
               </div>
 
+              {/* Detailed Tasks List */}
+              <div className="flex flex-col gap-4 mt-6">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-[16px] font-bold text-slate-300">Daftar Rincian Tugas</h4>
+                  <span className="text-[12px] text-slate-500">{filteredFlatTasks.length} Tugas</span>
+                </div>
 
+                <div className="bg-slate-900/20 border border-slate-900 rounded-2xl overflow-hidden">
+                  {filteredFlatTasks.length === 0 ? (
+                    <div className="text-center py-8 text-slate-500 text-[14px]">
+                      Belum ada tugas atau tidak ada tugas yang cocok dengan filter.
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-900/50">
+                      {filteredFlatTasks.map((t) => {
+                        // Find parent title if subtask
+                        const parentTask = t.parent_id ? tasks.find(pt => pt.id === t.parent_id) : null;
+                        
+                        return (
+                          <div 
+                            key={t.id}
+                            onClick={() => handleOpenEditTask(t)}
+                            className="group flex items-center justify-between p-4 hover:bg-slate-900/40 cursor-pointer transition-colors"
+                          >
+                            <div className="flex flex-col gap-1 min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                {/* Status Icon */}
+                                {t.status === 'Done' ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                ) : t.status === 'In_Progress' ? (
+                                  <Play className="w-4 h-4 text-sky-400 shrink-0 fill-sky-400/20" />
+                                ) : (
+                                  <Circle className="w-4 h-4 text-slate-500 shrink-0" />
+                                )}
+                                
+                                <span className={`text-[15px] font-semibold truncate ${
+                                  t.status === 'Done' ? 'text-slate-500 line-through' : 'text-slate-200'
+                                }`}>
+                                  {t.title}
+                                </span>
+                              </div>
+                              
+                              {/* Subtask / Path Indicator */}
+                              {parentTask && (
+                                <span className="text-[11px] text-slate-500 pl-6">
+                                  Subtask dari: <span className="text-slate-400 font-medium">{parentTask.title}</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-4 shrink-0 pl-4">
+                              {/* Weight Badge */}
+                              <div className="flex items-center gap-1 text-[11px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded-full border border-slate-900" title="Bobot Kerja">
+                                <Weight className="w-3 h-3 text-slate-500" />
+                                <span>{t.weight}</span>
+                              </div>
+
+                              {/* Status Badge */}
+                              <span className={`text-[11px] px-2 py-0.5 rounded-md font-semibold tracking-wide border ${
+                                t.status === 'Done'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                  : t.status === 'In_Progress'
+                                  ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
+                                  : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                              }`}>
+                                {t.status === 'In_Progress' ? 'In Progress' : t.status}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
 
             </div>
           ) : (
