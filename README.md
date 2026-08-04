@@ -1,10 +1,10 @@
 # Project Tracker Monorepo
 
-## Overview
+## Deskripsi Proyek
 
-Project Tracker is an intuitive project management tool designed to organize tasks, track project progress, and manage dependency relations in real-time.
+Project Tracker adalah alat manajemen proyek yang dirancang untuk mengorganisasi tugas, memantau kemajuan proyek, dan mengelola hubungan dependensi secara real-time.
 
- features:
+Feature:
 
 - Complete Project & Task Management (CRUD)
 - Multi-Level Task Tree (Subtask Hierarchy)
